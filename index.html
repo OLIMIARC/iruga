@@ -1,0 +1,684 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>IRUGA — Practical Engineering with Precision</title>
+  <meta name="description" content="IRUGA is a fabrication and innovation studio in Fort Portal, Uganda. We deliver engineered physical systems with technical clarity and respectful execution." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;1,9..144,300;1,9..144,400&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --black: #080808;
+      --volt: #c8ff00;
+      --bone: #f0ede6;
+      --steel: #a8a8a0;
+      --border: rgba(168,168,160,0.15);
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      background: var(--black);
+      color: var(--bone);
+      font-family: 'DM Mono', monospace;
+      font-size: 14px;
+      line-height: 1.7;
+      overflow-x: hidden;
+      cursor: crosshair;
+    }
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 1000;
+      opacity: 0.4;
+    }
+
+    /* FLOATING EQUATIONS */
+    #eq-canvas {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+      overflow: hidden;
+    }
+    .eq-particle {
+      position: absolute;
+      font-family: 'DM Mono', monospace;
+      color: var(--volt);
+      opacity: 0;
+      white-space: nowrap;
+      animation: floatUp linear infinite;
+      will-change: transform, opacity;
+    }
+    @keyframes floatUp {
+      0%   { transform: translateY(0);      opacity: 0; }
+      8%   { opacity: 0.16; }
+      85%  { opacity: 0.08; }
+      100% { transform: translateY(-105vh); opacity: 0; }
+    }
+
+    /* NAV */
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 900;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 20px 40px;
+      border-bottom: 1px solid var(--border);
+      background: rgba(8,8,8,0.92);
+      backdrop-filter: blur(12px);
+    }
+    .nav-logo {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 28px;
+      letter-spacing: 0.12em;
+      color: var(--bone);
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .nav-logo span { color: var(--volt); }
+    .nav-mark { width: 26px; height: 26px; flex-shrink: 0; }
+    .nav-links { display: flex; gap: 32px; list-style: none; }
+    .nav-links a {
+      color: var(--steel);
+      text-decoration: none;
+      font-size: 11px;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      transition: color 0.2s;
+    }
+    .nav-links a:hover { color: var(--volt); }
+
+    /* HERO */
+    #hero {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      padding: 0 40px 80px;
+      position: relative;
+      overflow: hidden;
+      z-index: 1;
+    }
+    .hero-grid-bg {
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(200,255,0,0.032) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(200,255,0,0.032) 1px, transparent 1px);
+      background-size: 60px 60px;
+      animation: gridShift 20s linear infinite;
+      z-index: 0;
+    }
+    @keyframes gridShift {
+      from { background-position: 0 0; }
+      to   { background-position: 60px 60px; }
+    }
+
+    /* ORIGIN MARK */
+    .hero-mark-wrap {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -58%);
+      z-index: 1;
+      opacity: 0;
+      animation: markReveal 1.4s cubic-bezier(0.16,1,0.3,1) forwards 0.2s;
+    }
+    @keyframes markReveal {
+      from { opacity: 0; transform: translate(-50%,-55%) scale(0.85); }
+      to   { opacity: 1; transform: translate(-50%,-58%) scale(1); }
+    }
+    .hero-mark-wrap { animation: markReveal 1.4s cubic-bezier(0.16,1,0.3,1) forwards 0.2s, markFloat 12s ease-in-out infinite 1.6s; }
+    .origin-mark { width: 240px; height: 240px; filter: drop-shadow(0 0 48px rgba(200,255,0,0.15)); animation: logoPulse 6s ease-in-out infinite 2s; }
+    .ring-outer { animation: spinCW  20s linear infinite; transform-origin: 150px 150px; }
+    @keyframes markFloat {
+      0%, 100% { transform: translate(-50%, -58%); }
+      50% { transform: translate(-50%, -70%); }
+    }
+    @keyframes logoPulse {
+      0%, 100% { filter: drop-shadow(0 0 48px rgba(200,255,0,0.15)); }
+      50% { filter: drop-shadow(0 0 72px rgba(200,255,0,0.25)); }
+    }
+    .ring-inner { animation: spinCCW 12s linear infinite; transform-origin: 150px 150px; }
+    .rays       { animation: rayPulse 3.2s ease-in-out infinite; }
+    .core-dot   { animation: corePulse 3.2s ease-in-out infinite; transform-origin: 150px 150px; }
+    @keyframes spinCW  { to { transform: rotate(360deg); } }
+    @keyframes spinCCW { to { transform: rotate(-360deg); } }
+    @keyframes rayPulse  { 0%,100%{opacity:0.45} 50%{opacity:0.9} }
+    @keyframes corePulse { 0%,100%{opacity:0.85; transform:scale(1)} 50%{opacity:1; transform:scale(1.25)} }
+
+    .hero-content { position: relative; z-index: 2; }
+    .hero-tag {
+      font-size: 11px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--volt);
+      margin-bottom: 24px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      opacity: 0;
+      animation: fadeUp 0.8s ease forwards 0.9s;
+    }
+    .hero-tag::before { content:''; display:block; width:40px; height:1px; background:var(--volt); }
+    h1.hero-title {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(80px, 14vw, 200px);
+      line-height: 0.88;
+      letter-spacing: -0.01em;
+      color: var(--bone);
+      opacity: 0;
+      animation: fadeUp 0.8s ease forwards 1.1s;
+    }
+    h1.hero-title .accent { color: var(--volt); }
+    .hero-sub {
+      margin-top: 40px;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      opacity: 0;
+      animation: fadeUp 0.8s ease forwards 1.3s;
+    }
+    .hero-tagline {
+      font-family: 'Fraunces', serif;
+      font-style: italic;
+      font-size: clamp(16px, 2.5vw, 26px);
+      color: var(--steel);
+      max-width: 480px;
+      line-height: 1.4;
+    }
+    .hero-meta { text-align: right; font-size: 11px; color: var(--steel); letter-spacing: 0.1em; }
+    .hero-meta strong { display:block; color:var(--volt); font-weight:400; margin-bottom:4px; }
+    .scroll-hint {
+      position: absolute;
+      bottom: 32px; left: 50%;
+      transform: translateX(-50%);
+      display: flex; flex-direction: column; align-items: center; gap: 8px;
+      color: var(--steel); font-size: 10px; letter-spacing: 0.2em; text-transform: uppercase;
+      opacity: 0; animation: fadeUp 1s ease forwards 1.7s; z-index: 2;
+    }
+    .scroll-line { width:1px; height:48px; background: linear-gradient(to bottom, var(--volt), transparent); animation: scrollPulse 2s ease infinite; }
+    @keyframes scrollPulse { 0%,100%{opacity:0.3} 50%{opacity:1} }
+
+    /* SECTIONS */
+    section {
+      padding: 120px 40px;
+      border-top: 1px solid var(--border);
+      position: relative;
+      z-index: 1;
+    }
+    .section-label {
+      font-size: 10px; letter-spacing: 0.25em; text-transform: uppercase;
+      color: var(--volt); margin-bottom: 48px;
+      display: flex; align-items: center; gap: 16px;
+    }
+    .section-label::after { content:''; flex:1; height:1px; background:var(--border); max-width:200px; }
+
+    /* ABOUT */
+    #about .about-grid { display:grid; grid-template-columns:1fr 1fr; gap:80px; align-items:start; }
+    #about h2 { font-family:'Bebas Neue',sans-serif; font-size:clamp(48px,6vw,88px); line-height:0.92; letter-spacing:0.02em; color:var(--bone); }
+    #about h2 .volt { color:var(--volt); }
+    .about-body { padding-top:12px; }
+    .about-body p { color:var(--steel); font-size:13px; line-height:1.9; margin-bottom:20px; font-family:'Fraunces',serif; font-weight:300; }
+    .about-body p strong { color:var(--bone); font-weight:400; font-family:'DM Mono',monospace; }
+    .stat-row { display:flex; gap:40px; margin-top:40px; padding-top:40px; border-top:1px solid var(--border); }
+    .stat { display:flex; flex-direction:column; gap:4px; }
+    .stat-num { font-family:'Bebas Neue',sans-serif; font-size:48px; color:var(--volt); line-height:1; }
+    .stat-label { font-size:10px; letter-spacing:0.15em; text-transform:uppercase; color:var(--steel); }
+
+    /* DISCIPLINES */
+    #disciplines .disc-list { display:grid; grid-template-columns:repeat(3,1fr); gap:1px; background:var(--border); margin-top:8px; }
+    .disc-item { background:var(--black); padding:40px 32px; transition:background 0.3s; position:relative; overflow:hidden; }
+    .disc-item::before { content:''; position:absolute; top:0; left:0; width:3px; height:0; background:var(--volt); transition:height 0.4s ease; }
+    .disc-item:hover { background:#0f0f0f; }
+    .disc-item:hover::before { height:100%; }
+    .disc-num { font-size:10px; letter-spacing:0.2em; color:var(--steel); margin-bottom:20px; }
+    .disc-name { font-family:'Bebas Neue',sans-serif; font-size:28px; letter-spacing:0.06em; color:var(--bone); margin-bottom:12px; }
+    .disc-desc { font-size:12px; color:var(--steel); line-height:1.8; }
+
+    /* PROJECTS */
+    #projects .projects-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:2px; background:var(--border); margin-top:8px; }
+    .project-card { background:var(--black); padding:48px 40px; transition:background 0.3s; }
+    .project-card:hover { background:#0d0d0d; }
+    .project-card.featured { grid-column:span 2; display:grid; grid-template-columns:1fr 1fr; gap:60px; }
+    .project-status { display:inline-block; font-size:9px; letter-spacing:0.2em; text-transform:uppercase; padding:4px 10px; border:1px solid var(--volt); color:var(--volt); margin-bottom:24px; }
+    .project-status.concept { border-color:var(--steel); color:var(--steel); }
+    .project-name { font-family:'Bebas Neue',sans-serif; font-size:40px; letter-spacing:0.04em; color:var(--bone); margin-bottom:8px; line-height:1; }
+    .project-code { font-size:10px; color:var(--steel); letter-spacing:0.15em; margin-bottom:20px; }
+    .project-desc { font-size:13px; color:var(--steel); line-height:1.9; font-family:'Fraunces',serif; font-weight:300; }
+    .project-tags { display:flex; flex-wrap:wrap; gap:8px; margin-top:24px; }
+    .tag { font-size:9px; letter-spacing:0.15em; text-transform:uppercase; padding:3px 8px; background:rgba(200,255,0,0.07); color:var(--volt); border:1px solid rgba(200,255,0,0.2); }
+
+    /* CONTACT */
+    #contact { display:grid; grid-template-columns:1fr 1fr; gap:80px; align-items:center; }
+    #contact h2 { font-family:'Bebas Neue',sans-serif; font-size:clamp(56px,7vw,100px); line-height:0.88; color:var(--bone); }
+    #contact h2 .volt { color:var(--volt); }
+    .contact-right { display:flex; flex-direction:column; gap:32px; }
+    .contact-item { display:flex; flex-direction:column; gap:4px; padding-bottom:32px; border-bottom:1px solid var(--border); }
+    .contact-item:last-child { border-bottom:none; padding-bottom:0; }
+    .contact-label { font-size:10px; letter-spacing:0.2em; text-transform:uppercase; color:var(--steel); }
+    .contact-value { font-size:16px; color:var(--bone); text-decoration:none; transition:color 0.2s; font-family:'Fraunces',serif; }
+    .contact-value:hover { color:var(--volt); }
+
+    /* FOOTER */
+    footer { border-top:1px solid var(--border); padding:32px 40px; display:flex; justify-content:space-between; align-items:center; position:relative; z-index:1; }
+    .footer-logo { font-family:'Bebas Neue',sans-serif; font-size:20px; letter-spacing:0.12em; color:var(--steel); display:flex; align-items:center; gap:10px; }
+    .footer-logo span { color:var(--volt); }
+    .partner-logo { height: 28px; width: auto; display: block; filter: saturate(0.8); opacity: 0.9; }
+    .footer-copy { font-size:10px; color:var(--steel); letter-spacing:0.1em; }
+
+    /* ANIMATIONS */
+    @keyframes fadeUp { from{opacity:0;transform:translateY(24px)} to{opacity:1;transform:translateY(0)} }
+    .reveal { opacity:0; transform:translateY(32px); transition:opacity 0.8s ease,transform 0.8s ease; }
+    .reveal.visible { opacity:1; transform:translateY(0); }
+
+    /* HAMBURGER */
+    .nav-hamburger {
+      display: none;
+      flex-direction: column;
+      justify-content: center;
+      gap: 5px;
+      width: 36px;
+      height: 36px;
+      cursor: pointer;
+      background: none;
+      border: none;
+      padding: 4px;
+    }
+    .nav-hamburger span {
+      display: block;
+      width: 100%;
+      height: 1px;
+      background: var(--bone);
+      transition: transform 0.3s ease, opacity 0.3s ease;
+    }
+    .nav-hamburger.open span:nth-child(1) { transform: translateY(6px) rotate(45deg); }
+    .nav-hamburger.open span:nth-child(2) { opacity: 0; }
+    .nav-hamburger.open span:nth-child(3) { transform: translateY(-6px) rotate(-45deg); }
+
+    /* MOBILE DRAWER */
+    .nav-drawer {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(8,8,8,0.97);
+      z-index: 850;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      gap: 48px;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+    .nav-drawer.open { opacity: 1; }
+    .nav-drawer a {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 48px;
+      letter-spacing: 0.08em;
+      color: var(--bone);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+    .nav-drawer a:hover { color: var(--volt); }
+
+    /* TABLET */
+    @media (max-width:1024px) and (min-width:769px) {
+      h1.hero-title { font-size: clamp(80px, 11vw, 160px); }
+      #disciplines .disc-list { grid-template-columns: repeat(2,1fr); }
+    }
+
+    /* MOBILE */
+    @media (max-width:768px) {
+      nav { padding:16px 20px; }
+      .nav-links { display:none; }
+      .nav-hamburger { display:flex; }
+      #hero { padding:0 20px 60px; }
+      section { padding:80px 20px; }
+      .origin-mark { width:160px; height:160px; }
+      #about .about-grid, #contact, .project-card.featured { grid-template-columns:1fr; gap:40px; }
+      #disciplines .disc-list, #projects .projects-grid { grid-template-columns:1fr; }
+      .project-card.featured { grid-column:span 1; }
+      .stat-row { flex-wrap:wrap; gap:24px; }
+      footer { flex-direction:column; gap:12px; text-align:center; }
+      .hero-sub { flex-direction: column; gap: 24px; align-items: flex-start; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- FLOATING EQUATIONS -->
+<div id="eq-canvas"></div>
+
+<!-- NAV -->
+<nav>
+  <a href="#hero" class="nav-logo">
+    <svg class="nav-mark" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="50" cy="50" r="44" fill="none" stroke="#c8ff00" stroke-width="1.5" stroke-dasharray="6 4" opacity="0.6"/>
+      <line x1="50" y1="6"  x2="50" y2="22" stroke="#c8ff00" stroke-width="2" opacity="0.7"/>
+      <line x1="50" y1="78" x2="50" y2="94" stroke="#c8ff00" stroke-width="2" opacity="0.7"/>
+      <line x1="6"  y1="50" x2="22" y2="50" stroke="#c8ff00" stroke-width="2" opacity="0.7"/>
+      <line x1="78" y1="50" x2="94" y2="50" stroke="#c8ff00" stroke-width="2" opacity="0.7"/>
+      <circle cx="50" cy="50" r="7" fill="#c8ff00" opacity="0.95"/>
+      <circle cx="50" cy="50" r="2.5" fill="#080808"/>
+    </svg>
+    IRU<span>G</span>A
+  </a>
+  <ul class="nav-links">
+    <li><a href="#about">About</a></li>
+    <li><a href="#disciplines">Disciplines</a></li>
+    <li><a href="#projects">Projects</a></li>
+    <li><a href="#contact">Contact</a></li>
+  </ul>
+  <button class="nav-hamburger" id="hamburger" aria-label="Open menu">
+    <span></span><span></span><span></span>
+  </button>
+</nav>
+
+<!-- MOBILE DRAWER -->
+<div class="nav-drawer" id="nav-drawer">
+  <a href="#about"       class="drawer-link">About</a>
+  <a href="#disciplines" class="drawer-link">Disciplines</a>
+  <a href="#projects"    class="drawer-link">Projects</a>
+  <a href="#contact"     class="drawer-link">Contact</a>
+</div>
+
+<!-- HERO -->
+<section id="hero">
+  <div class="hero-grid-bg"></div>
+
+  <!-- ANIMATED ORIGIN MARK -->
+  <div class="hero-mark-wrap">
+    <svg class="origin-mark" viewBox="0 0 300 300" xmlns="http://www.w3.org/2000/svg">
+      <!-- Outer ring: dashed, spins CW -->
+      <g class="ring-outer">
+        <circle cx="150" cy="150" r="138" fill="none" stroke="#c8ff00" stroke-width="1" stroke-dasharray="8 5" opacity="0.22"/>
+        <line x1="150" y1="12"  x2="150" y2="30"  stroke="#c8ff00" stroke-width="2"   opacity="0.5"/>
+        <line x1="150" y1="270" x2="150" y2="288" stroke="#c8ff00" stroke-width="2"   opacity="0.5"/>
+        <line x1="12"  y1="150" x2="30"  y2="150" stroke="#c8ff00" stroke-width="2"   opacity="0.5"/>
+        <line x1="270" y1="150" x2="288" y2="150" stroke="#c8ff00" stroke-width="2"   opacity="0.5"/>
+        <line x1="52"  y1="52"  x2="64"  y2="64"  stroke="#c8ff00" stroke-width="1.5" opacity="0.28"/>
+        <line x1="248" y1="52"  x2="236" y2="64"  stroke="#c8ff00" stroke-width="1.5" opacity="0.28"/>
+        <line x1="52"  y1="248" x2="64"  y2="236" stroke="#c8ff00" stroke-width="1.5" opacity="0.28"/>
+        <line x1="248" y1="248" x2="236" y2="236" stroke="#c8ff00" stroke-width="1.5" opacity="0.28"/>
+        <!-- Orbit dot -->
+        <circle cx="150" cy="12" r="4" fill="#c8ff00" opacity="0.7"/>
+      </g>
+
+      <!-- Mid rings: spin CCW -->
+      <g class="ring-inner">
+        <circle cx="150" cy="150" r="100" fill="none" stroke="#c8ff00" stroke-width="1"   stroke-dasharray="4 8" opacity="0.18"/>
+        <circle cx="150" cy="150" r="70"  fill="none" stroke="#c8ff00" stroke-width="0.5" opacity="0.12"/>
+      </g>
+
+      <!-- Crosshair: static -->
+      <line x1="150" y1="25"  x2="150" y2="275" stroke="#c8ff00" stroke-width="0.5" opacity="0.1"/>
+      <line x1="25"  y1="150" x2="275" y2="150" stroke="#c8ff00" stroke-width="0.5" opacity="0.1"/>
+
+      <!-- Rays: pulse -->
+      <g class="rays">
+        <line x1="150" y1="150" x2="150" y2="50"  stroke="#c8ff00" stroke-width="1.5" opacity="0.45"/>
+        <line x1="150" y1="150" x2="150" y2="250" stroke="#c8ff00" stroke-width="1.5" opacity="0.45"/>
+        <line x1="150" y1="150" x2="50"  y2="150" stroke="#c8ff00" stroke-width="1.5" opacity="0.45"/>
+        <line x1="150" y1="150" x2="250" y2="150" stroke="#c8ff00" stroke-width="1.5" opacity="0.45"/>
+        <line x1="150" y1="150" x2="79"  y2="79"  stroke="#c8ff00" stroke-width="1"   opacity="0.25"/>
+        <line x1="150" y1="150" x2="221" y2="79"  stroke="#c8ff00" stroke-width="1"   opacity="0.25"/>
+        <line x1="150" y1="150" x2="79"  y2="221" stroke="#c8ff00" stroke-width="1"   opacity="0.25"/>
+        <line x1="150" y1="150" x2="221" y2="221" stroke="#c8ff00" stroke-width="1"   opacity="0.25"/>
+      </g>
+
+      <!-- Core: pulse -->
+      <circle class="core-dot" cx="150" cy="150" r="11" fill="#c8ff00" opacity="0.95"/>
+      <circle cx="150" cy="150" r="4.5" fill="#080808"/>
+      <circle cx="150" cy="150" r="1.8" fill="#c8ff00"/>
+    </svg>
+  </div>
+
+  <div class="hero-content">
+    <div class="hero-tag">Fabrication &amp; Innovation Studio — Fort Portal, Uganda</div>
+    <h1 class="hero-title">IRU<span class="accent">G</span>A</h1>
+    <div class="hero-sub">
+      <p class="hero-tagline">Engineering with precision,<br/>humility, and technical clarity.</p>
+      <div class="hero-meta">
+        <strong>EST. 2024</strong>
+        Fort Portal<br/>Western Uganda
+      </div>
+    </div>
+  </div>
+
+  <div class="scroll-hint">
+    <div class="scroll-line"></div>
+    Scroll
+  </div>
+</section>
+
+<!-- ABOUT -->
+<section id="about">
+  <div class="section-label">001 — Studio</div>
+  <div class="about-grid reveal">
+    <h2>Built<br/>From<br/><span class="volt">Origin.</span></h2>
+    <div class="about-body">
+      <p><strong>IRUGA</strong> — from the Rutooro word meaning <em>origin</em> or <em>source</em> — is a fabrication and innovation studio based in Fort Portal, western Uganda.</p>
+      <p>Founded by <strong>Olimi Archangel</strong>, the studio works in technical partnership with <a href="https://s-tartex.org/" target="_blank" rel="noopener" style="color:inherit; text-decoration:underline;">S-Tartex Group</a>.</p>
+      <p>We work where <strong>electronics, materials science, and industrial design</strong> converge. Our focus is on objects, systems, and assemblies that are engineered to perform reliably in the real world.</p>
+      <p>Every project is guided by <strong>engineering depth</strong> — physics, materials, fabrication precision, and clear design intent. We choose measured solutions over flash, and technical rigor over noise.</p>
+      <div class="stat-row">
+        <div class="stat"><span class="stat-num">2AC</span><span class="stat-label">Studio Property</span></div>
+        <div class="stat"><span class="stat-num">6+</span><span class="stat-label">Active Disciplines</span></div>
+        <div class="stat"><span class="stat-num">20+</span><span class="stat-label">Disciplines Mapped</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- DISCIPLINES -->
+<section id="disciplines">
+  <div class="section-label">002 — What We Build</div>
+  <div class="disc-list reveal">
+    <div class="disc-item"><div class="disc-num">D-01</div><div class="disc-name">Electromagnetics</div><div class="disc-desc">Induction heating, ZVS oscillators, magnetic levitation, high-frequency resonance systems. From bench prototypes to installation-scale builds.</div></div>
+    <div class="disc-item"><div class="disc-num">D-02</div><div class="disc-name">Materials & Chemistry</div><div class="disc-desc">Ferrofluid synthesis, fiber optic concrete, geopolymers, electroforming, cast cement composites. Novel materials with designed properties.</div></div>
+    <div class="disc-item"><div class="disc-num">D-03</div><div class="disc-name">Embedded Systems</div><div class="disc-desc">ESP32-based sensing, WiFi CSI signal processing, WLED-driven installations, custom PCB integration. Hardware that thinks.</div></div>
+    <div class="disc-item"><div class="disc-num">D-04</div><div class="disc-name">Industrial Fabrication</div><div class="disc-desc">CNC routing, structural steel, glass scoring and cutting, tensegrity structures, concrete casting. Precision at the bench and at scale.</div></div>
+    <div class="disc-item"><div class="disc-num">D-05</div><div class="disc-name">Optical & Lighting</div><div class="disc-desc">Glass optical resonators, fiber optic diffusion, LED matrix systems, architectural illumination. Light as engineered material.</div></div>
+    <div class="disc-item"><div class="disc-num">D-06</div><div class="disc-name">Electronics Repair</div><div class="disc-desc">Board-level diagnostics, amplifier restoration, speaker system rebuilds. Repair work guided by careful diagnostics and skilled rework.</div></div>
+  </div>
+</section>
+
+<!-- PROJECTS -->
+<section id="projects">
+  <div class="section-label">003 — Active Builds</div>
+  <div class="projects-grid reveal">
+    <div class="project-card featured">
+      <div>
+        <div class="project-status">Active</div>
+        <div class="project-name">IRUGA SPECTRE</div>
+        <div class="project-code">PRJ-001 / Through-Wall Presence Detection</div>
+        <div class="project-desc">A passive human presence and breathing rate detector using ESP32-S3 WiFi Channel State Information. No cameras. No active emission. The antenna reads the room through solid walls by analyzing ambient WiFi signal distortion caused by micro-movements in the human chest.</div>
+        <div class="project-tags"><span class="tag">ESP32-S3</span><span class="tag">WiFi CSI</span><span class="tag">Signal Processing</span><span class="tag">Embedded</span></div>
+      </div>
+      <div>
+        <div class="project-status">Active</div>
+        <div class="project-name">TARA</div>
+        <div class="project-code">PRJ-002 / Optical Resonator Lighting</div>
+        <div class="project-desc">Stacked glass panel columns with precision-aligned apertures and internal LED illumination creating infinite optical resonance effects. Six product variants from desktop to installation scale. Each unit is a permanent light object — architectural, collectible, built on alignment geometry that cannot be eyeballed.</div>
+        <div class="project-tags"><span class="tag">Optical</span><span class="tag">Glass Fabrication</span><span class="tag">LED Systems</span><span class="tag">Architectural</span></div>
+      </div>
+    </div>
+    <div class="project-card">
+      <div class="project-status">Active</div>
+      <div class="project-name">IH-001</div>
+      <div class="project-code">ZVS Induction Heater</div>
+      <div class="project-desc">3000W ZVS Royer oscillator induction heating system. Bench-built, production-grade output. Designed for local metalworking and research markets.</div>
+      <div class="project-tags"><span class="tag">ZVS</span><span class="tag">Power Electronics</span><span class="tag">3000W</span></div>
+    </div>
+    <div class="project-card">
+      <div class="project-status">Active</div>
+      <div class="project-name">T-001</div>
+      <div class="project-code">Tensegrity Installation Table</div>
+      <div class="project-desc">4000×800×900mm tensegrity table. Steel pipe compression members, grade-80 alloy chain tension system. A structural engineering statement at installation scale.</div>
+      <div class="project-tags"><span class="tag">Structural</span><span class="tag">Steel Fabrication</span><span class="tag">Installation</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section id="contact">
+  <div>
+    <div class="section-label">004 — Connect</div>
+    <h2 class="reveal">Let's<br/>Build<br/><span class="volt">Practical<br/>Systems.</span></h2>
+  </div>
+  <div class="contact-right reveal">
+    <div class="contact-item"><span class="contact-label">Location</span><span class="contact-value">Fort Portal, Western Uganda</span></div>
+    <div class="contact-item"><span class="contact-label">Founder</span><span class="contact-value">Olimi Archangel</span></div>
+    <div class="contact-item"><span class="contact-label">Partner</span><a href="https://s-tartex.org/" class="contact-value" target="_blank" rel="noopener">S-Tartex Group</a></div>
+    <div class="contact-item"><span class="contact-label">Email</span><a href="mailto:hello@iruga.studio" class="contact-value">hello@iruga.studio</a></div>
+    <div class="contact-item"><span class="contact-label">X (Twitter)</span><a href="https://x.com/IRUGA" class="contact-value" target="_blank">@IRUGA</a></div>
+    <div class="contact-item"><span class="contact-label">Enquiries</span><span class="contact-value">Open to fabrication commissions,<br/>research partnerships &amp; collaborations.</span></div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-logo">
+    <svg width="20" height="20" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="50" cy="50" r="44" fill="none" stroke="#c8ff00" stroke-width="1.5" stroke-dasharray="5 4" opacity="0.5"/>
+      <line x1="50" y1="6" x2="50" y2="94" stroke="#c8ff00" stroke-width="0.8" opacity="0.2"/>
+      <line x1="6" y1="50" x2="94" y2="50" stroke="#c8ff00" stroke-width="0.8" opacity="0.2"/>
+      <circle cx="50" cy="50" r="7" fill="#c8ff00" opacity="0.9"/>
+      <circle cx="50" cy="50" r="2.5" fill="#080808"/>
+    </svg>
+    IRU<span>G</span>A
+    <a href="https://s-tartex.org/" target="_blank" rel="noopener">
+      <img src="Capture.PNG" alt="S-Tartex Group logo" class="partner-logo" />
+    </a>
+  </div>
+  <div class="footer-copy">© 2024 IRUGA Studio — Fort Portal, Uganda — Founded by Olimi Archangel — In technical partnership with S-Tartex Group.</div>
+</footer>
+
+<script>
+  // HAMBURGER MENU
+  const hamburger = document.getElementById('hamburger');
+  const drawer = document.getElementById('nav-drawer');
+  hamburger.addEventListener('click', () => {
+    const isOpen = drawer.classList.contains('open');
+    if (isOpen) {
+      drawer.classList.remove('open');
+      hamburger.classList.remove('open');
+      setTimeout(() => { drawer.style.display = 'none'; }, 300);
+    } else {
+      drawer.style.display = 'flex';
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => { drawer.classList.add('open'); hamburger.classList.add('open'); });
+      });
+    }
+  });
+  document.querySelectorAll('.drawer-link').forEach(link => {
+    link.addEventListener('click', () => {
+      drawer.classList.remove('open');
+      hamburger.classList.remove('open');
+      setTimeout(() => { drawer.style.display = 'none'; }, 300);
+    });
+  });
+
+  // SCROLL REVEAL
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); observer.unobserve(e.target); } });
+  }, { threshold: 0.08 });
+  document.querySelectorAll('.reveal').forEach(r => observer.observe(r));
+
+  // FLOATING EQUATIONS & STATEMENTS
+  const ITEMS = [
+    // Maxwell's equations
+    '∇ · E = ρ/ε₀', '∇ · B = 0', '∇ × E = −∂B/∂t', '∇ × B = μ₀J + μ₀ε₀ ∂E/∂t',
+    // Circuit & Power
+    'f = 1/(2π√LC)', 'P = V²/R', 'V = L·dI/dt', 'Z = √(L/C)', 'I = V/R', 'τ = RC',
+    // Mechanics
+    'ΣF = 0', 'σ = F/A', 'ε = ΔL/L₀', 'KE = ½mv²', 'W = F·d', 'p = mv',
+    // Electromagnetism
+    'F = qv × B', 'Φ = B·A', 'ε = −dΦ/dt', 'B = μ₀nI',
+    // Thermodynamics
+    'Q = mcΔT', 'ΔU = Q − W', 'dS ≥ 0', 'η = 1 − T_c/T_h',
+    // Chemistry
+    'Fe²⁺ + Fe³⁺ → Fe₃O₄', 'ΔG = ΔH − TΔS', 'pH = −log[H⁺]', 'PV = nRT', 'n = m/M',
+    // Optics
+    'n₁sinθ₁ = n₂sinθ₂', 'λ = c/f', 'I ∝ 1/r²',
+    // Fundamentals
+    'E = mc²', 'F = ma', 'E = hf', 'a² + b² = c²',
+    // Laws of physics
+    'Every action has an equal and opposite reaction.',
+    'Energy cannot be created or destroyed.',
+    'Entropy of an isolated system always increases.',
+    'Nature always takes the path of least resistance.',
+    'Objects in motion tend to stay in motion.',
+    'The universe tends toward disorder.',
+    'No two electrons can occupy the same quantum state.',
+    // Chemistry principles
+    'Like dissolves like.',
+    'Acids donate protons. Bases accept them.',
+    'Equilibrium favors the path of least energy.',
+    'Oxidation is loss. Reduction is gain.',
+    'Bonds store energy. Breaking them releases it.',
+    'Every element wants a full outer shell.',
+    // Engineering principles
+    'Form follows function.',
+    'If it cannot be measured, it cannot be improved.',
+    'Simplicity is the ultimate sophistication.',
+    'A structure fails at its weakest point.',
+    'Design for the failure mode, not the ideal case.',
+    'Every prototype is a question.',
+    'Materials have memory.',
+    'Tolerance determines precision.',
+    'Redundancy is safety.',
+    'Physics does not negotiate.',
+    // Questions
+    'What happens if we increase the frequency?',
+    'Can this be cast instead of machined?',
+    'What is the failure mode at 2× load?',
+    'Is the resonance tunable?',
+    'How does this behave at high temperature?',
+    'What does the material want to do?',
+    'Can we make this from what is already here?',
+    'Where does the energy go?',
+    'What would this look like at ten times the scale?',
+    'Is there a simpler way to achieve this?',
+    // IRUGA
+    'IRUGA — Where Serious Engineering Begins',
+    'Fort Portal, Western Uganda',
+    'Physics → Chemistry → Fabrication → Design',
+    'Build. Test. Refine. Ship.',
+    'Every build is a hypothesis.',
+    'Steel remembers stress.',
+    'Light is engineered material.',
+    'Origin: IRUGA · EST. 2024',
+  ];
+
+  const canvas = document.getElementById('eq-canvas');
+
+  function spawn() {
+    const el = document.createElement('div');
+    el.className = 'eq-particle';
+    el.textContent = ITEMS[Math.floor(Math.random() * ITEMS.length)];
+    const x        = Math.random() * 92;
+    const duration = 32 + Math.random() * 28;  // much slower: 32–60s
+    const delay    = Math.random() * 4;
+    const size     = 9 + Math.random() * 3;
+    el.style.cssText = `left:${x}vw;top:108vh;font-size:${size}px;animation-duration:${duration}s;animation-delay:${delay}s`;
+    canvas.appendChild(el);
+    setTimeout(() => el.remove(), (duration + delay + 2) * 1000);
+  }
+
+  // Light initial spread — only 12 to start, well spaced
+  for (let i = 0; i < 12; i++) setTimeout(spawn, i * 500);
+  // Gentle continuous rate — one every 2.2s keeps it sparse
+  setInterval(spawn, 2200);
+</script>
+</body>
+</html>
