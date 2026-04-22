@@ -8,6 +8,10 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;1,9..144,300;1,9..144,400&display=swap" rel="stylesheet" />
+  <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+  <link rel="apple-touch-icon" href="apple-touch-icon.svg" />
+  <link rel="mask-icon" href="favicon.svg" color="#c8ff00" />
+  <meta name="theme-color" content="#080808" />
   <style>
     :root {
       --black: #080808;
@@ -198,6 +202,20 @@
     }
     .hero-meta { text-align: right; font-size: 11px; color: var(--steel); letter-spacing: 0.1em; }
     .hero-meta strong { display:block; color:var(--volt); font-weight:400; margin-bottom:4px; }
+    .hero-cta {
+      display: inline-block;
+      margin: 22px 0 0;
+      padding: 14px 24px;
+      color: var(--black);
+      background: var(--volt);
+      text-decoration: none;
+      font-size: 11px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      border-radius: 999px;
+      transition: transform 0.2s ease, background 0.2s ease;
+    }
+    .hero-cta:hover { background: #d7ff00; transform: translateY(-1px); }
     .scroll-hint {
       position: absolute;
       bottom: 32px; left: 50%;
@@ -232,6 +250,14 @@
     .about-body p strong { color:var(--bone); font-weight:400; font-family:'DM Mono',monospace; }
     .stat-row { display:flex; gap:40px; margin-top:40px; padding-top:40px; border-top:1px solid var(--border); }
     .stat { display:flex; flex-direction:column; gap:4px; }
+    .workflow { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:18px; margin-top:30px; padding:24px; background:rgba(200,255,0,0.06); border:1px solid rgba(200,255,0,0.12); }
+    .workflow div { font-size:12px; line-height:1.8; color:var(--bone); }
+    .workflow strong { color:var(--volt); display:block; margin-bottom:6px; font-family:'Bebas Neue',sans-serif; font-size:14px; }
+    .capability-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:16px; margin-top:28px; }
+    .capability-card { padding:22px; border:1px solid rgba(200,255,0,0.12); background:rgba(255,255,255,0.02); transition: transform 0.2s ease, border-color 0.2s ease; }
+    .capability-card:hover { transform: translateY(-2px); border-color: rgba(200,255,0,0.22); }
+    .cap-card-title { font-family:'Bebas Neue',sans-serif; font-size:18px; color:var(--bone); margin-bottom:8px; }
+    .cap-card-desc { font-size:12px; line-height:1.8; color:var(--steel); }
     .stat-num { font-family:'Bebas Neue',sans-serif; font-size:48px; color:var(--volt); line-height:1; }
     .stat-label { font-size:10px; letter-spacing:0.15em; text-transform:uppercase; color:var(--steel); }
 
@@ -246,10 +272,12 @@
     .disc-desc { font-size:12px; color:var(--steel); line-height:1.8; }
 
     /* PROJECTS */
-    #projects .projects-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:2px; background:var(--border); margin-top:8px; }
+    #projects .projects-grid { display:grid; grid-template-columns:1fr; gap:2px; background:var(--border); margin-top:8px; }
     .project-card { background:var(--black); padding:48px 40px; transition:background 0.3s; }
     .project-card:hover { background:#0d0d0d; }
     .project-card.featured { grid-column:span 2; display:grid; grid-template-columns:1fr 1fr; gap:60px; }
+    .project-image { margin-top:24px; text-align:center; }
+    .project-image img { max-width:100%; height:auto; border-radius:8px; }
     .project-status { display:inline-block; font-size:9px; letter-spacing:0.2em; text-transform:uppercase; padding:4px 10px; border:1px solid var(--volt); color:var(--volt); margin-bottom:24px; }
     .project-status.concept { border-color:var(--steel); color:var(--steel); }
     .project-name { font-family:'Bebas Neue',sans-serif; font-size:40px; letter-spacing:0.04em; color:var(--bone); margin-bottom:8px; line-height:1; }
@@ -345,7 +373,7 @@
       section { padding:80px 20px; }
       .origin-mark { width:160px; height:160px; }
       #about .about-grid, #contact, .project-card.featured { grid-template-columns:1fr; gap:40px; }
-      #disciplines .disc-list, #projects .projects-grid { grid-template-columns:1fr; }
+      #disciplines .disc-list { grid-template-columns:1fr; }
       .project-card.featured { grid-column:span 1; }
       .stat-row { flex-wrap:wrap; gap:24px; }
       footer { flex-direction:column; gap:12px; text-align:center; }
@@ -374,8 +402,9 @@
   </a>
   <ul class="nav-links">
     <li><a href="#about">About</a></li>
-    <li><a href="#disciplines">Disciplines</a></li>
-    <li><a href="#projects">Projects</a></li>
+    <li><a href="#disciplines">Territory</a></li>
+    <li><a href="#model">The Model</a></li>
+    <li><a href="#projects">Active Builds</a></li>
     <li><a href="#contact">Contact</a></li>
   </ul>
   <button class="nav-hamburger" id="hamburger" aria-label="Open menu">
@@ -386,8 +415,9 @@
 <!-- MOBILE DRAWER -->
 <div class="nav-drawer" id="nav-drawer">
   <a href="#about"       class="drawer-link">About</a>
-  <a href="#disciplines" class="drawer-link">Disciplines</a>
-  <a href="#projects"    class="drawer-link">Projects</a>
+  <a href="#disciplines" class="drawer-link">Territory</a>
+  <a href="#model"       class="drawer-link">The Model</a>
+  <a href="#projects"    class="drawer-link">Active Builds</a>
   <a href="#contact"     class="drawer-link">Contact</a>
 </div>
 
@@ -443,10 +473,11 @@
   </div>
 
   <div class="hero-content">
-    <div class="hero-tag">Fabrication &amp; Innovation Studio — Fort Portal, Uganda</div>
+    <div class="hero-tag">One engineer. Serious physics. Western Uganda.</div>
     <h1 class="hero-title">IRU<span class="accent">G</span>A</h1>
     <div class="hero-sub">
-      <p class="hero-tagline">Engineering with precision,<br/>humility, and technical clarity.</p>
+      <p class="hero-tagline">This is where it begins.</p>
+      <a href="#contact" class="hero-cta">See what's being built</a>
       <div class="hero-meta">
         <strong>EST. 2024</strong>
         Fort Portal<br/>Western Uganda
@@ -464,67 +495,58 @@
 <section id="about">
   <div class="section-label">001 — Studio</div>
   <div class="about-grid reveal">
-    <h2>Built<br/>From<br/><span class="volt">Origin.</span></h2>
+    <h2>CLOSING THE GAP<br/>BETWEEN THEORY<br/>AND WORKING DEVICE.</h2>
     <div class="about-body">
-      <p><strong>IRUGA</strong> — from the Rutooro word meaning <em>origin</em> or <em>source</em> — is a fabrication and innovation studio based in Fort Portal, western Uganda.</p>
-      <p>Founded by <strong>Olimi Archangel</strong>, the studio works in technical partnership with <a href="https://s-tartex.org/" target="_blank" rel="noopener" style="color:inherit; text-decoration:underline;">S-Tartex Group</a>.</p>
-      <p>We work where <strong>electronics, materials science, and industrial design</strong> converge. Our focus is on objects, systems, and assemblies that are engineered to perform reliably in the real world.</p>
-      <p>Every project is guided by <strong>engineering depth</strong> — physics, materials, fabrication precision, and clear design intent. We choose measured solutions over flash, and technical rigor over noise.</p>
-      <div class="stat-row">
-        <div class="stat"><span class="stat-num">2AC</span><span class="stat-label">Studio Property</span></div>
-        <div class="stat"><span class="stat-num">6+</span><span class="stat-label">Active Disciplines</span></div>
-        <div class="stat"><span class="stat-num">20+</span><span class="stat-label">Disciplines Mapped</span></div>
-      </div>
+      <p><strong>IRUGA</strong> is a fabrication and innovation studio based in western Uganda.</p>
+      <p>We build working systems from first principles — embedded sensing, electromagnetic hardware, material science, industrial fabrication.</p>
+      <p>The gap between a physics textbook and a working device is smaller than most people have been shown. Closing that gap is the work.</p>
+      <p>We are building toward something larger — a physical place where engineering is practiced, taught, and turned into products. Where young engineers in this region can come and leave with capabilities no classroom nearby is currently teaching.</p>
+      <p>We are not there yet. But SPECTRE is proof we are on the way.</p>
+      <p style="color: var(--volt);">The work is real. This is where it begins.</p>
     </div>
   </div>
 </section>
 
-<!-- DISCIPLINES -->
+<!-- TERRITORY -->
 <section id="disciplines">
-  <div class="section-label">002 — What We Build</div>
+  <div class="section-label">002 — Territory</div>
   <div class="disc-list reveal">
-    <div class="disc-item"><div class="disc-num">D-01</div><div class="disc-name">Electromagnetics</div><div class="disc-desc">Induction heating, ZVS oscillators, magnetic levitation, high-frequency resonance systems. From bench prototypes to installation-scale builds.</div></div>
-    <div class="disc-item"><div class="disc-num">D-02</div><div class="disc-name">Materials & Chemistry</div><div class="disc-desc">Ferrofluid synthesis, fiber optic concrete, geopolymers, electroforming, cast cement composites. Novel materials with designed properties.</div></div>
-    <div class="disc-item"><div class="disc-num">D-03</div><div class="disc-name">Embedded Systems</div><div class="disc-desc">ESP32-based sensing, WiFi CSI signal processing, WLED-driven installations, custom PCB integration. Hardware that thinks.</div></div>
-    <div class="disc-item"><div class="disc-num">D-04</div><div class="disc-name">Industrial Fabrication</div><div class="disc-desc">CNC routing, structural steel, glass scoring and cutting, tensegrity structures, concrete casting. Precision at the bench and at scale.</div></div>
-    <div class="disc-item"><div class="disc-num">D-05</div><div class="disc-name">Optical & Lighting</div><div class="disc-desc">Glass optical resonators, fiber optic diffusion, LED matrix systems, architectural illumination. Light as engineered material.</div></div>
-    <div class="disc-item"><div class="disc-num">D-06</div><div class="disc-name">Electronics Repair</div><div class="disc-desc">Board-level diagnostics, amplifier restoration, speaker system rebuilds. Repair work guided by careful diagnostics and skilled rework.</div></div>
+    <div class="disc-item"><div class="disc-num">D-01</div><div class="disc-name">Electromagnetics</div><div class="disc-desc">Induction heating, ZVS oscillators, resonant power transfer, magnetic field manipulation. This is ground we are working on — exploration and active work.</div></div>
+    <div class="disc-item"><div class="disc-num">D-02</div><div class="disc-name">Materials & Chemistry</div><div class="disc-desc">Ferrofluid synthesis, piezoresistive composites, electroforming, cast cement systems. This is ground we are working on — exploration and active work.</div></div>
+    <div class="disc-item"><div class="disc-num">D-03</div><div class="disc-name">Embedded Systems</div><div class="disc-desc">ESP32-based sensing, WiFi CSI signal processing, distributed node networks, custom firmware. This is ground we are working on — exploration and active work.</div></div>
+    <div class="disc-item"><div class="disc-num">D-04</div><div class="disc-name">Industrial Fabrication</div><div class="disc-desc">CNC routing, structural steel, tensegrity structures, concrete casting, glass cutting. This is ground we are working on — exploration and active work.</div></div>
+    <div class="disc-item"><div class="disc-num">D-05</div><div class="disc-name">Optical & Lighting</div><div class="disc-desc">Glass optical resonators, fiber optic diffusion, LED matrix systems, architectural light installations. This is ground we are working on — exploration and active work.</div></div>
+    <div class="disc-item"><div class="disc-num">D-06</div><div class="disc-name">Electronics Repair</div><div class="disc-desc">Board-level diagnostics, amplifier restoration, speaker system rebuilds. Repair as a discipline — because understanding why something failed is real engineering.</div></div>
   </div>
 </section>
 
-<!-- PROJECTS -->
+<!-- ACTIVE BUILDS -->
 <section id="projects">
   <div class="section-label">003 — Active Builds</div>
   <div class="projects-grid reveal">
     <div class="project-card featured">
       <div>
-        <div class="project-status">Active</div>
-        <div class="project-name">IRUGA SPECTRE</div>
-        <div class="project-code">PRJ-001 / Through-Wall Presence Detection</div>
-        <div class="project-desc">A passive human presence and breathing rate detector using ESP32-S3 WiFi Channel State Information. No cameras. No active emission. The antenna reads the room through solid walls by analyzing ambient WiFi signal distortion caused by micro-movements in the human chest.</div>
-        <div class="project-tags"><span class="tag">ESP32-S3</span><span class="tag">WiFi CSI</span><span class="tag">Signal Processing</span><span class="tag">Embedded</span></div>
+        <div class="project-status">In Progress</div>
+        <div class="project-name">SPECTRE</div>
+        <div class="project-code">Advanced Sensing Platform</div>
+        <div class="project-desc">High-precision sensing system using electromagnetic field detection and signal processing. Building sophisticated measurement capabilities with minimal hardware.</div>
+        <div class="project-desc">Exploring whether serious sensing requires expensive hardware — or just understanding the physics.</div>
+        <div class="project-tags"><span class="tag">Electromagnetics</span><span class="tag">Sensing</span><span class="tag">Signal Processing</span><span class="tag">In Progress</span></div>
       </div>
-      <div>
-        <div class="project-status">Active</div>
-        <div class="project-name">TARA</div>
-        <div class="project-code">PRJ-002 / Optical Resonator Lighting</div>
-        <div class="project-desc">Stacked glass panel columns with precision-aligned apertures and internal LED illumination creating infinite optical resonance effects. Six product variants from desktop to installation scale. Each unit is a permanent light object — architectural, collectible, built on alignment geometry that cannot be eyeballed.</div>
-        <div class="project-tags"><span class="tag">Optical</span><span class="tag">Glass Fabrication</span><span class="tag">LED Systems</span><span class="tag">Architectural</span></div>
+      <div class="project-image">
+        <img src="ESP32 Arduino - First Look.jfif" alt="ESP32 development board used in SPECTRE project" />
       </div>
     </div>
-    <div class="project-card">
-      <div class="project-status">Active</div>
-      <div class="project-name">IH-001</div>
-      <div class="project-code">ZVS Induction Heater</div>
-      <div class="project-desc">3000W ZVS Royer oscillator induction heating system. Bench-built, production-grade output. Designed for local metalworking and research markets.</div>
-      <div class="project-tags"><span class="tag">ZVS</span><span class="tag">Power Electronics</span><span class="tag">3000W</span></div>
-    </div>
-    <div class="project-card">
-      <div class="project-status">Active</div>
-      <div class="project-name">T-001</div>
-      <div class="project-code">Tensegrity Installation Table</div>
-      <div class="project-desc">4000×800×900mm tensegrity table. Steel pipe compression members, grade-80 alloy chain tension system. A structural engineering statement at installation scale.</div>
-      <div class="project-tags"><span class="tag">Structural</span><span class="tag">Steel Fabrication</span><span class="tag">Installation</span></div>
+  </div>
+</section>
+
+<!-- THE MODEL -->
+<section id="model">
+  <div class="section-label">004 — The Model</div>
+  <div class="about-grid reveal">
+    <div class="about-body">
+      <p>Fabrication commissions, CNC work, electronics repair, and product sales.</p>
+      <p>The work sustains the work.</p>
     </div>
   </div>
 </section>
@@ -532,16 +554,14 @@
 <!-- CONTACT -->
 <section id="contact">
   <div>
-    <div class="section-label">004 — Connect</div>
-    <h2 class="reveal">Let's<br/>Build<br/><span class="volt">Practical<br/>Systems.</span></h2>
+    <div class="section-label">005 — Connect</div>
+    <h2 class="reveal">THE WORK IS<br/>REAL.<br/>THIS IS WHERE IT BEGINS.</h2>
   </div>
   <div class="contact-right reveal">
     <div class="contact-item"><span class="contact-label">Location</span><span class="contact-value">Fort Portal, Western Uganda</span></div>
-    <div class="contact-item"><span class="contact-label">Founder</span><span class="contact-value">Olimi Archangel</span></div>
-    <div class="contact-item"><span class="contact-label">Partner</span><a href="https://s-tartex.org/" class="contact-value" target="_blank" rel="noopener">S-Tartex Group</a></div>
-    <div class="contact-item"><span class="contact-label">Email</span><a href="mailto:hello@iruga.studio" class="contact-value">hello@iruga.studio</a></div>
-    <div class="contact-item"><span class="contact-label">X (Twitter)</span><a href="https://x.com/IRUGA" class="contact-value" target="_blank">@IRUGA</a></div>
-    <div class="contact-item"><span class="contact-label">Enquiries</span><span class="contact-value">Open to fabrication commissions,<br/>research partnerships &amp; collaborations.</span></div>
+    <div class="contact-item"><span class="contact-label">WhatsApp</span><a href="tel:+256780668029" class="contact-value">+256 780 668 029</a></div>
+    <div class="contact-item"><span class="contact-label">Email</span><a href="mailto:contact@iruga.studio" class="contact-value">contact@iruga.studio</a></div>
+    <div class="contact-item"><span class="contact-label">We're open to:</span><span class="contact-value">Research conversations<br/>Physics collaborations<br/>Teaching opportunities<br/>Institutions that want students<br/>to see what's actually possible</span></div>
   </div>
 </section>
 
@@ -556,11 +576,8 @@
       <circle cx="50" cy="50" r="2.5" fill="#080808"/>
     </svg>
     IRU<span>G</span>A
-    <a href="https://s-tartex.org/" target="_blank" rel="noopener">
-      <img src="Capture.PNG" alt="S-Tartex Group logo" class="partner-logo" />
-    </a>
   </div>
-  <div class="footer-copy">© 2024 IRUGA Studio — Fort Portal, Uganda — Founded by Olimi Archangel — In technical partnership with S-Tartex Group.</div>
+  <div class="footer-copy">© 2024 Olimi Archangel — Fort Portal, Uganda — One Engineer. Serious Physics. This Is Where It Begins.</div>
 </footer>
 
 <script>
